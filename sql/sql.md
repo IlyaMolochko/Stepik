@@ -239,6 +239,76 @@ having sum(price * amount) > 5000
 order by Стоимость desc;
 ```
 
+# 21.
+
+Вывести информацию (автора, название и цену) о  книгах, цены которых меньше или равны средней цене книг на складе. Информацию вывести в отсортированном по убыванию цены виде. Среднее вычислить как среднее по цене книги.
+
+```mysql
+select t.author,
+       t.title,
+       t.price
+from book t
+where t.price <= (select avg(t.price) from book t)
+order by t.price desc;
+```
+
+# 22. 
+
+Вывести информацию (автора, название и цену) о тех книгах, цены которых превышают минимальную цену книги на складе не более чем на 150 рублей в отсортированном по возрастанию цены виде.
+
+```mysql
+select t.author,
+       t.title,
+       t.price
+from book t
+where (t.price - (select min(t.price) from book t)) <= 150
+order by t.price; 
+```
+
+# 23.
+
+Вывести информацию (автора, книгу и количество) о тех книгах, количество экземпляров которых в таблице book не дублируется.
+
+```mysql
+select t.author,
+       t.title,
+       t.amount
+from book t
+where t.amount in (select t.amount from book t
+                 group by t.amount
+                 having count(t.amount) = 1);
+```
+
+# 24.
+
+Вывести информацию о книгах(автор, название, цена), цена которых меньше самой большой из минимальных цен, вычисленных для каждого автора.
+
+```mysql
+select t.author,
+       t.title,
+       t.price
+from book t
+where t.price < any (
+        select min(t.price)
+        from book t)
+        group by t.author
+    );
+```
+
+# 25.
+
+Посчитать сколько и каких экземпляров книг нужно заказать поставщикам, чтобы на складе стало одинаковое количество экземпляров каждой книги, равное значению самого большего количества экземпляров одной книги на складе. Вывести название книги, ее автора, текущее количество экземпляров на складе и количество заказываемых экземпляров книг. Последнему столбцу присвоить имя Заказ. В результат не включать книги, которые заказывать не нужно.
+
+```mysql
+select t.title,
+       t.author,
+       t.amount,
+       (select max(t.amount) from book t) - t.amount as Заказ
+from book t
+where t.amount <> (select max(t.amount) from book t);
+```
+
+
 
 
 
